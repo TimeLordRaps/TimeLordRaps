@@ -234,7 +234,7 @@ ${cube.css}
     [0, 1, 2, 3, 4].map((l) => `<radialGradient id="gh${l}"><stop offset="0" stop-color="${CLK[l]}" stop-opacity=".85"/><stop offset=".4" stop-color="${CLK[l]}" stop-opacity=".32"/><stop offset="1" stop-color="${CLK[l]}" stop-opacity="0"/></radialGradient>`).join('') +
     `<radialGradient id="gblob"><stop offset="0" stop-color="${GAME.ball}" stop-opacity=".95"/><stop offset=".45" stop-color="${GAME.future}" stop-opacity=".45"/><stop offset="1" stop-color="${GAME.future}" stop-opacity="0"/></radialGradient>` +
     `<radialGradient id="gball"><stop offset="0" stop-color="${GAME.future}" stop-opacity=".7"/><stop offset="1" stop-color="${GAME.future}" stop-opacity="0"/></radialGradient>` +
-    `<linearGradient id="gband" x1="0" x2="1"><stop offset="0" stop-color="${PAL.cyan}" stop-opacity="0"/><stop offset=".85" stop-color="${PAL.cyan}" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".55"/></linearGradient>` +
+    `<linearGradient id="gband" x1="0" x2="1"><stop offset="0" stop-color="#6dffb4" stop-opacity="0"/><stop offset=".85" stop-color="#6dffb4" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".55"/></linearGradient>` +
     `<mask id="glit" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}">${maskEls.join('')}</mask>` +
     cube.defs;
 
@@ -251,7 +251,7 @@ ${cube.css}
     card('g', 0, 0, W, H),
     // header
     clockMark(30, 25, 6.5),
-    label(44, 29, 'CHRONO-GRID', { size: 11, fill: PAL.cyan, spacing: 0.2, weight: 700 }),
+    label(44, 29, 'CHRONO-GRID', { size: 11, fill: "#6dffb4", spacing: 0.2, weight: 700 }),
     label(W - 22, 29, `${data.contrib.total} CONTRIBUTIONS · LAST 12 MONTHS`, { size: 10, anchor: 'end', cls: 'act' }),
     label(W - 22, 29, `${time} ${parts.tzName} · ${cfg.home.label}`, { size: 10, anchor: 'end', fill: PAL.gold, cls: 'clk' }),
     `<g class="act">${months.join('')}</g>`,
@@ -276,8 +276,8 @@ ${cube.css}
     `</g>`,
     // footer
     label(22, H - 14, `${dateLabel(parts)} · SYNC ${time} ${parts.tzName} · ${cfg.home.label}`, { size: 9.5, fill: PAL.dim, spacing: 0.12 }),
-    label(W - 38, H - 14, 'CLICK FOR LIVE · YOUR TIME ZONE', { size: 9.5, fill: PAL.cyan, anchor: 'end', spacing: 0.12 }),
-    `<path d="M${W - 31} ${H - 22}l7.5 4.3-7.5 4.3z" fill="${PAL.cyan}"/>`,
+    label(W - 38, H - 14, 'CLICK FOR LIVE · YOUR TIME ZONE', { size: 9.5, fill: "#6dffb4", anchor: 'end', spacing: 0.12 }),
+    `<path d="M${W - 31} ${H - 22}l7.5 4.3-7.5 4.3z" fill="#6dffb4"/>`,
   ].join('');
 
   const svg = svgDoc({

@@ -15,7 +15,7 @@ import { CellCube } from './cellcube-view.js';
 
 const ROWS = 7;
 const ACT = ['#15223b', '#0e4f3a', '#12805a', '#26c281', '#6dffb4'].map(hex);
-const CLK = ['#3596c0', '#45bde3', '#72dff0', '#bdfbf2', '#fff3c2'].map(hex);
+const CLK = ['#12805a', '#26c281', '#4fe39f', '#6dffb4', '#d2ffe8'].map(hex);
 const GLOW = [0.34, 0.46, 0.62, 0.82, 1];
 const BG = hex('#070b14');
 const DEAD = hex('#0b1220');
@@ -511,8 +511,8 @@ export class ChronoGrid {
         const bw = pitch * 3.2;
         const x = x0 - bw + u * (cols * pitch + bw * 1.6);
         const grd = g.createLinearGradient(x, 0, x + bw, 0);
-        grd.addColorStop(0, 'rgba(70,224,255,0)');
-        grd.addColorStop(0.85, 'rgba(70,224,255,.28)');
+        grd.addColorStop(0, 'rgba(109,255,180,0)');
+        grd.addColorStop(0.85, 'rgba(109,255,180,.28)');
         grd.addColorStop(1, 'rgba(255,255,255,.55)');
         g.fillStyle = grd;
         g.fillRect(x, y0 - 4, bw, ROWS * pitch + 8);
@@ -527,7 +527,7 @@ export class ChronoGrid {
     if (this.hover >= 0 && mm < 0.5 && !(hoverBay >= 0 && this.cube.fold[hoverBay] > 0.05)) {
       const i = Math.floor(this.hover / ROWS);
       const j = this.hover % ROWS;
-      g.strokeStyle = 'rgba(70,224,255,.95)';
+      g.strokeStyle = 'rgba(109,255,180,.95)';
       g.lineWidth = 1.5;
       roundRectPath(g, x0 + i * pitch + (pitch - cell) / 2 - 1, y0 + j * pitch + (pitch - cell) / 2 - 1, cell + 2, cell + 2, R + 1);
       g.stroke();

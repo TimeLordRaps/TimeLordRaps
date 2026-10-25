@@ -22,7 +22,7 @@ export const PAL = {
 
 /** Activity ramp (contribution levels 0..4) and the "clock" ramp the same days morph into. */
 export const ACT = ['#15223b', '#0e4f3a', '#12805a', '#26c281', '#6dffb4'];
-export const CLK = ['#3596c0', '#45bde3', '#72dff0', '#bdfbf2', '#fff3c2'];
+export const CLK = ['#12805a', '#26c281', '#4fe39f', '#6dffb4', '#d2ffe8'];
 export const GLOW = [0.34, 0.46, 0.62, 0.82, 1];
 
 /**
