@@ -1,0 +1,27 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>README preview</title>
+<style>
+  :root{color-scheme:dark light}
+  body{margin:0;font:16px/1.5 -apple-system,Segoe UI,Helvetica,Arial,sans-serif}
+  body.dark{background:#0d1117;color:#e6edf3}
+  body.light{background:#fff;color:#1f2328}
+  .md{width:830px;margin:0 auto;padding:24px 0}
+  .md img{max-width:100%}
+  .c{text-align:center}
+  a{color:#4493f8}
+  h2{border-bottom:1px solid #30363d66;padding-bottom:.3em}
+  .row{display:flex;gap:8px;justify-content:center;flex-wrap:wrap;margin:10px 0}
+</style>
+<body>
+<div class="md c" id="md"></div>
+<script>
+  const q = new URLSearchParams(location.search);
+  document.body.className = q.get('bg') === 'light' ? 'light' : 'dark';
+  const files = (q.get('files') || 'banner,pills,chronogrid,instruments').split(',');
+  const v = Date.now();
+  const html = files.map(f => f === 'pills'
+    ? `<div class="row"><a href="#"><img src="/dist/pill-enter.svg?${v}" height="36" alt=""></a><a href="#"><img src="/dist/pill-repos.svg?${v}" height="36" alt=""></a><a href="#"><img src="/dist/pill-sponsor.svg?${v}" height="36" alt=""></a><a href="#"><img src="/dist/pill-music.svg?${v}" height="36" alt=""></a></div>`
+    : `<p><a href="#"><img src="/dist/${f}.svg?${v}" width="100%" alt="${f}"></a></p>`).join('');
+  md.innerHTML = html;
+</script>

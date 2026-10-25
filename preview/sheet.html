@@ -1,0 +1,33 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>sheet</title>
+<style>
+  html,body{margin:0;background:#0d1117;color:#8b98a8;font:11px ui-monospace,Consolas,monospace}
+  #grid{display:grid;gap:8px;padding:8px}
+  .cell{position:relative}
+  .cell span{position:absolute;left:6px;top:2px;z-index:2;color:#fff;background:#0009;padding:0 4px;border-radius:3px}
+  .cell svg{display:block;width:100%;height:auto}
+</style>
+<div id="grid"></div>
+<script type="module">
+  const q = new URLSearchParams(location.search);
+  const src = q.get('svg');
+  const times = (q.get('times') || '0').split(',').map(Number);
+  const cols = +(q.get('cols') || 2);
+  const scale = +(q.get('scale') || 1);
+  const crop = q.get('crop');            // "x,y,w,h" in svg units
+  const txt = await (await fetch(src + '?v=' + Date.now())).text();
+  grid.style.gridTemplateColumns = `repeat(${cols}, 1fr)`;
+  grid.style.width = (+(q.get('width') || 1600)) + 'px';
+  for (const t of times) {
+    const d = document.createElement('div');
+    d.className = 'cell';
+    d.innerHTML = `<span>t=${t}</span>` + txt;
+    grid.appendChild(d);
+    const svg = d.querySelector('svg');
+    if (crop) svg.setAttribute('viewBox', crop.split(',').join(' '));
+    svg.pauseAnimations?.(); svg.setCurrentTime?.(t);
+    for (const a of svg.getAnimations({ subtree: true })) { a.pause(); a.currentTime = t * 1000; }
+  }
+  window.ready = true;
+</script>
