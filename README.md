@@ -6,10 +6,7 @@
 
 I build auditable AI systems, formal tools, and interactive media—turning ambitious ideas into inspectable, reproducible work.
 
-<a href="https://timelordraps.github.io/TimeLordRaps/"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/pill-enter.svg" height="36" alt="Enter the Chronosphere"></a>&nbsp;
-<a href="https://github.com/TimeLordRaps?tab=repositories"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/pill-repos.svg" height="36" alt="Repositories"></a>&nbsp;
-<a href="https://github.com/sponsors/TimeLordRaps"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/pill-sponsor.svg" height="36" alt="Sponsor"></a>&nbsp;
-<a href="https://soundcloud.com/timelordraps"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/pill-music.svg" height="36" alt="Music"></a>
+<a href="https://timelordraps.github.io/TimeLordRaps/"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/pill-enter.svg" height="36" alt="Enter the Chronosphere"></a>&nbsp; <a href="https://github.com/TimeLordRaps?tab=repositories"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/pill-repos.svg" height="36" alt="Repositories"></a>&nbsp; <a href="https://github.com/sponsors/TimeLordRaps"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/pill-sponsor.svg" height="36" alt="Sponsor"></a>&nbsp; <a href="https://soundcloud.com/timelordraps"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/pill-music.svg" height="36" alt="Music"></a>
 
 [Featured work](#featured-work) · [All repositories](https://github.com/TimeLordRaps?tab=repositories) · [Sponsor open work](https://github.com/sponsors/TimeLordRaps) · [Music](https://soundcloud.com/timelordraps)
 
