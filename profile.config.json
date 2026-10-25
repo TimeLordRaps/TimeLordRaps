@@ -1,0 +1,25 @@
+{
+  "login": "TimeLordRaps",
+  "displayName": "Tyler Roost",
+  "wordmark": ["TIMELORD", "RAPS"],
+  "home": {
+    "label": "SAN DIEGO",
+    "tz": "America/Los_Angeles",
+    "lat": 32.7157,
+    "lon": -117.1611
+  },
+  "siteUrl": "https://timelordraps.github.io/TimeLordRaps/",
+  "assetBase": "https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos",
+  "taglines": [
+    "Independent researcher · systems architect · creative technologist",
+    "I build things that shouldn’t exist yet. Then I make them rigorous.",
+    "Auditable AI · formal tools · interactive media",
+    "Evidence before confidence."
+  ],
+  "links": {
+    "repos": "https://github.com/TimeLordRaps?tab=repositories",
+    "sponsor": "https://github.com/sponsors/TimeLordRaps",
+    "music": "https://soundcloud.com/timelordraps"
+  },
+  "featured": ["verifier", "lean4-explainer", "hyperfields", "hypermath", "ordinatics"]
+}

@@ -1,0 +1,153 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>Chronosphere · TimeLordRaps</title>
+<meta name="description" content="Tyler Roost (TimeLordRaps): independent researcher, systems architect and creative technologist. A live instrument panel where the GitHub contribution graph becomes a clock, the clock becomes a game of Pong, and a Rubik's cube solves itself.">
+<meta name="color-scheme" content="dark">
+<meta name="theme-color" content="#050810">
+<meta property="og:title" content="Chronosphere · TimeLordRaps">
+<meta property="og:description" content="My GitHub activity graph turns into the time. Click it for yours.">
+<meta property="og:type" content="website">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='7' fill='%23070b14'/%3E%3Ccircle cx='16' cy='16' r='9' fill='none' stroke='%2346e0ff' stroke-width='2.4'/%3E%3Cpath d='M16 9.5V16l4.5 3' fill='none' stroke='%23ffc857' stroke-width='2.4' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body>
+<canvas id="stars" aria-hidden="true"></canvas>
+<a class="skip" href="#main">Skip to content</a>
+
+<header class="top">
+  <a class="brand" href="#top" aria-label="TimeLordRaps, top of page">
+    <svg viewBox="0 0 32 32" width="22" height="22" aria-hidden="true"><circle cx="16" cy="16" r="10" fill="none" stroke="currentColor" stroke-width="2.4"/><path d="M16 9v7l5 3" fill="none" stroke="#ffc857" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"/></svg>
+    <span>CHRONOSPHERE</span>
+  </a>
+  <nav aria-label="Sections">
+    <a href="#instruments">Instruments</a>
+    <a href="#work">Work</a>
+    <a href="#principles">Principles</a>
+    <a href="https://github.com/TimeLordRaps" rel="me">GitHub</a>
+    <a class="cta" href="https://github.com/sponsors/TimeLordRaps">Sponsor</a>
+  </nav>
+</header>
+
+<main id="main">
+  <section class="hero" id="top" aria-labelledby="name">
+    <p class="eyebrow"><span class="live-dot" aria-hidden="true"></span> TYLER ROOST · INDEPENDENT RESEARCHER · SAN DIEGO</p>
+    <h1 id="name" class="sr-only">TimeLordRaps</h1>
+    <canvas id="wordmark" aria-hidden="true"></canvas>
+    <p class="tagline" id="tagline" aria-live="off">Auditable AI · formal tools · interactive media</p>
+    <p class="lede">I build auditable AI systems, formal tools, and interactive media, turning ambitious ideas into inspectable, reproducible work. This page is the live instrument panel behind my GitHub profile: <strong>the contribution graph is the clock, the clock is a game, and the cube solves itself.</strong></p>
+
+    <div class="stage">
+      <figure class="panel grid-panel">
+        <figcaption class="panel-head">
+          <span class="tag cyan"><i class="mark" aria-hidden="true"></i>CHRONO-GRID</span>
+          <span class="info" id="gridInfo">…</span>
+        </figcaption>
+        <div class="canvas-wrap">
+          <canvas id="grid" tabindex="0" role="button" aria-describedby="gridHelp" aria-label="Chrono-Grid: my contribution graph. Activate to show the time in your time zone."></canvas>
+          <div class="tip" id="gridTip" role="status" aria-live="off" hidden></div>
+        </div>
+        <ul class="stats" id="gridStats" aria-label="Activity behind the glow"></ul>
+        <div class="panel-foot">
+          <span id="gridClock" class="mono-dim"></span>
+          <span id="gridScore" class="score" aria-live="off"></span>
+          <span id="gridHint" class="hint">CLICK THE GRAPH FOR YOUR TIME</span>
+        </div>
+        <p id="gridHelp" class="sr-only">Click or press Enter to turn the activity graph into the current time in your time zone. While the clock is showing, move the pointer over the court to steer a paddle in the game of Pong played between past and future, or use W and S and the arrow keys.</p>
+      </figure>
+
+      <figure class="panel cube-panel">
+        <figcaption class="panel-head">
+          <span class="tag gold"><i class="mark" aria-hidden="true"></i>SELF-SOLVING CUBE</span>
+          <span class="info" id="cubeInfo">…</span>
+        </figcaption>
+        <div class="cube-stage" id="cubeStage" tabindex="0" role="button" aria-label="Interactive Rubik's cube. Drag to orbit, press Enter to reshuffle and watch it solve itself." >
+          <canvas id="floor" aria-hidden="true"></canvas>
+          <canvas id="cube" aria-hidden="true"></canvas>
+          <canvas id="fx" aria-hidden="true"></canvas>
+        </div>
+        <div class="panel-foot">
+          <span id="cubeHud" class="mono-cyan">…</span>
+          <span class="hint">DRAG TO ORBIT · CLICK TO RESHUFFLE</span>
+        </div>
+      </figure>
+    </div>
+
+    <div class="console" role="group" aria-label="Clock controls">
+      <div class="chips" id="modeChips" role="radiogroup" aria-label="Chrono-Grid mode"></div>
+      <div class="chips zones" id="zoneChips" role="radiogroup" aria-label="Clock time zone"></div>
+      <div class="tm" id="timeMachine" role="group" aria-label="Time machine">
+        <span class="tm-label">TIME MACHINE</span>
+        <button type="button" data-shift="-86400000" title="Back one day">−1D</button>
+        <button type="button" data-shift="-3600000" title="Back one hour">−1H</button>
+        <button type="button" data-now class="now" title="Return to the present">NOW</button>
+        <button type="button" data-shift="3600000" title="Forward one hour">+1H</button>
+        <button type="button" data-shift="86400000" title="Forward one day">+1D</button>
+        <span class="sep" aria-hidden="true"></span>
+        <button type="button" data-rate="1" aria-pressed="true">×1</button>
+        <button type="button" data-rate="60" aria-pressed="false">×60</button>
+        <button type="button" data-rate="3600" aria-pressed="false">×3600</button>
+        <output id="tmState" class="tm-state" aria-live="off">LIVE</output>
+      </div>
+    </div>
+  </section>
+
+  <section class="band" id="instruments" aria-labelledby="inst-h">
+    <header class="sec-head">
+      <p class="eyebrow">INSTRUMENT BAY</p>
+      <h2 id="inst-h">Everything here runs on time</h2>
+      <p>Every instrument reads the same clock, so the time machine above moves all of them together. The cube is the exception: it keeps real time and re-scrambles on the twenty-second mark for everyone at once.</p>
+    </header>
+    <div class="inst-grid" id="instGrid"></div>
+  </section>
+
+  <section class="band" id="work" aria-labelledby="work-h">
+    <header class="sec-head">
+      <p class="eyebrow">FEATURED WORK</p>
+      <h2 id="work-h">Mechanisms you can inspect</h2>
+      <p>Auditable AI and verification, formal and mathematical systems, and creative technology that makes difficult ideas tangible.</p>
+    </header>
+    <ul class="work" id="workList">
+      <li class="card work-card" data-repo="verifier"><a href="https://github.com/TimeLordRaps/verifier"><h3>Verifier</h3><p>Implements the Verifier Standard (VSTD) for portable, bounded, refutable computational evidence and provenance graphs.</p><span class="stat" data-stat></span></a></li>
+      <li class="card work-card" data-repo="lean4-explainer"><a href="https://github.com/TimeLordRaps/lean4-explainer"><h3>Lean4 Explainer</h3><p>Builds navigable proofsites from Lean 4 code using an explanation layer designed for higher-order specificity.</p><span class="stat" data-stat></span></a></li>
+      <li class="card work-card" data-repo="hyperfields"><a href="https://github.com/TimeLordRaps/hyperfields"><h3>Hyperfields</h3><p>Provides a Lean 4-checked, source-pinned map of the public hyperfield ecosystem.</p><span class="stat" data-stat></span></a></li>
+      <li class="card work-card" data-repo="hypermath"><a href="https://github.com/TimeLordRaps/hypermath"><h3>Hypermath</h3><p>Develops a formal universe from one primitive operation, with a Lean translation and explicit open proof obligations.</p><span class="stat" data-stat></span></a></li>
+      <li class="card work-card" data-repo="ordinatics"><a href="https://github.com/TimeLordRaps/ordinatics"><h3>Ordinatics</h3><p>Explores exact ordinal arithmetic and bounded typed satisfaction in an ordinal-first computational framework.</p><span class="stat" data-stat></span></a></li>
+      <li class="card work-card all"><a href="https://github.com/TimeLordRaps?tab=repositories"><h3>All repositories</h3><p>Everything else, newest first, orbiting in the orrery above.</p><span class="stat">GITHUB.COM/TIMELORDRAPS →</span></a></li>
+    </ul>
+  </section>
+
+  <section class="band split" id="principles" aria-labelledby="pr-h">
+    <div>
+      <header class="sec-head">
+        <p class="eyebrow">WORKING PRINCIPLES</p>
+        <h2 id="pr-h">Evidence before confidence</h2>
+      </header>
+      <ul class="principles">
+        <li>Evidence before confidence.</li>
+        <li>Reproducible artifacts before broad claims.</li>
+        <li>Open obligations and unknowns stated plainly.</li>
+        <li>Ambitious ideas paired with mechanisms that can be inspected, tested, and challenged.</li>
+      </ul>
+    </div>
+    <div class="card support">
+      <p class="eyebrow">SUPPORT THE WORK</p>
+      <p>I publish open research, tools, experiments, and documentation across AI, computation, mathematics, and creative systems. If that work helps you think, build, or verify something more effectively, sponsorship helps fund more of it.</p>
+      <p class="actions"><a class="btn pink" href="https://github.com/sponsors/TimeLordRaps">Sponsor on GitHub</a><a class="btn" href="https://soundcloud.com/timelordraps">Listen on SoundCloud</a><a class="btn" href="https://github.com/TimeLordRaps">Follow on GitHub</a></p>
+      <p class="fine">For a project-specific question or collaboration idea, open an issue in the relevant repository with a concrete use case, counterexample, or proposal.</p>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <p>No trackers, no dependencies, no build step. Your time zone is read in your browser and never leaves it.</p>
+  <p><a href="https://github.com/TimeLordRaps/TimeLordRaps">Source for this page</a> · the same files draw the animated images in my GitHub profile README.</p>
+</footer>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+<noscript><p class="noscript">This page is an interactive instrument panel and needs JavaScript. The animated, script-free version lives in my <a href="https://github.com/TimeLordRaps">GitHub profile</a>.</p></noscript>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>

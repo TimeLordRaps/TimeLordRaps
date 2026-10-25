@@ -1,0 +1,32 @@
+<!doctype html>
+<meta charset="utf-8">
+<title>frame</title>
+<style>
+  html,body{margin:0;background:#0d1117;color:#9aa;font:12px ui-monospace,Consolas,monospace}
+  body.light{background:#fff}
+  #host{width:830px;margin:12px auto 0}
+  #host svg{display:block;width:100%;height:auto}
+  #bar{width:830px;margin:6px auto;display:flex;gap:10px;align-items:center}
+  #bar input{flex:1}
+</style>
+<div id="host"></div>
+<div id="bar"><span id="lbl">t=0</span><input id="rng" type="range" min="0" max="60" step="0.05" value="0"></div>
+<script type="module">
+  const q = new URLSearchParams(location.search);
+  if (q.get('bg') === 'light') document.body.classList.add('light');
+  const src = q.get('svg');
+  host.innerHTML = await (await fetch(src + '?v=' + Date.now())).text();
+  const svg = host.querySelector('svg');
+  const seek = (t) => {
+    svg.pauseAnimations?.();
+    svg.setCurrentTime?.(t);
+    for (const a of document.getAnimations()) { a.pause(); a.currentTime = t * 1000; }
+    lbl.textContent = 't=' + t.toFixed(2) + 's';
+    rng.value = t;
+  };
+  window.seek = seek;
+  if (q.has('max')) rng.max = q.get('max');
+  rng.oninput = () => seek(+rng.value);
+  seek(parseFloat(q.get('t') ?? '0'));
+  window.ready = true;
+</script>
