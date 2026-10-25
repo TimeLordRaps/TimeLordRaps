@@ -188,9 +188,10 @@ function rotateTaglines(app) {
 function cubeFallback(stage, why) {
   stage.querySelectorAll('canvas').forEach((c) => (c.hidden = true));
   stage.style.cursor = 'default';
-  stage.style.backgroundImage = `url(${CONFIG.assetBase}/instruments.svg)`;
-  stage.style.backgroundSize = '307% auto';
-  stage.style.backgroundPosition = '0 50%';
+  // the animated Chrono-Grid, cropped to the right-hand block where the cube forms
+  stage.style.backgroundImage = `url(${CONFIG.assetBase}/chronogrid.svg)`;
+  stage.style.backgroundSize = '280% auto';
+  stage.style.backgroundPosition = '100% 50%';
   stage.style.backgroundRepeat = 'no-repeat';
   stage.style.minHeight = '260px';
   $('#cubeHud').textContent = `3D CUBE UNAVAILABLE HERE (${why}). SHOWING THE ANIMATED VERSION.`;
@@ -276,7 +277,17 @@ async function boot() {
       const v = app.grid.view;
       setText(
         'gridHint',
-        !v.clock ? 'CLICK THE GRAPH FOR YOUR TIME' : app.grid.playAlpha > 0.5 ? 'MOVE OVER THE COURT TO TAKE A PADDLE' : v.zone === app.zones.you ? 'CLICK TO RETURN TO ACTIVITY' : 'CLICK FOR YOUR TIME',
+        !v.clock
+          ? 'CLICK THE GRAPH FOR YOUR TIME'
+          : v.cube && app.grid.playAlpha > 0.5
+            ? 'DRAG THE CUBE · MOVE OVER THE COURT TO TAKE A PADDLE'
+            : v.cube
+              ? 'DRAG THE CUBE TO ORBIT IT'
+              : app.grid.playAlpha > 0.5
+                ? 'MOVE OVER THE COURT TO TAKE A PADDLE'
+                : v.zone === app.zones.you
+                  ? 'CLICK TO RETURN TO ACTIVITY'
+                  : 'CLICK FOR YOUR TIME',
       );
     }
     if (app.cube && vis.cube) {

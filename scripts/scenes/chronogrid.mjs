@@ -1,39 +1,44 @@
 // CHRONO-GRID: the real contribution graph reforms into the time, Pong is played
-// inside the digits, then everything melts back into the activity.
+// inside the digits, the right-hand block of contributions folds into a Rubik's cube that
+// scrambles and solves itself, then everything melts back into the activity.
 // One 32s CSS loop, no scripts. Every cell keeps its real activity level: the days you
 // were busiest are the brightest pixels of the clock.
 
 import { layoutText } from '../../site/lib/font5x7.mjs';
 import { recordRally, simplifyChannel } from '../../site/lib/pong.mjs';
+import { bayLayout, camera, cubeExtent, cellDelay, STORY } from '../../site/lib/cellcube.mjs';
+import { hash32 } from '../../site/lib/rng.mjs';
 import { zoneParts, hhmm, dateLabel, monthName, progress } from '../../site/lib/timeutil.mjs';
-import { PAL, ACT, CLK, GLOW, num, esc, mix, svgDoc, cardDefs, card, label, clockMark } from './common.mjs';
+import { PAL, ACT, CLK, GLOW, GAME, num, mix, svgDoc, cardDefs, card, label, clockMark } from './common.mjs';
+import { buildCellCube } from './cube.mjs';
 
 const W = 830;
-const H = 206;
+const H = 224;
 const L = 32; // loop length, seconds
 const P = 15; // cell pitch
 const C = 12; // cell size
 const COLS = 53;
 const ROWS = 7;
 const GX = (W - COLS * P) / 2;
-const GY = 52;
+const GY = 56;
 const MORPH_IN = 8; // seconds into the loop
 const MORPH_OUT = 26;
 const MORPH = 1; // per-cell transition length
-const WAVE = 1.2; // left-to-right stagger across the whole graph
+const WAVE = STORY.wave; // left-to-right stagger across the whole graph
 const POP = { t0: 11.4, dur: 13.8 }; // pong window inside the loop
+const CUBE_PX = 136; // height of the cube on the page
+const CUBE_MOVES = 9;
 
 const pct = (t) => num((t / L) * 100, 3);
 const cellX = (i) => GX + i * P + (P - C) / 2;
 const cellY = (j) => GY + j * P + (P - C) / 2;
-const courtX = (x) => GX + x * P;
 const courtY = (y) => GY + y * P;
 
-const RALLY_OPTS = { speed: 24, maxSpeed: 38 };
-
-function pickRally(day) {
+function pickRally(day, court) {
+  const k = Math.sqrt(court.w / 53); // a shorter court gets a slower ball
+  const opts = { w: court.w, paddleX: court.paddleX, speed: 24 * k, maxSpeed: 38 * k };
   for (let seed = 1000 + day * 13; seed < 1000 + day * 13 + 600; seed++) {
-    const r = recordRally(POP.dur, { seed, ...RALLY_OPTS }, 60);
+    const r = recordRally(POP.dur, { seed, ...opts }, 60);
     const hits = r.events.filter((e) => e.type === 'hit').length;
     const scores = r.events.filter((e) => e.type === 'score');
     if (hits < 5 || hits > 9 || scores.length < 1 || scores.length > 2 || scores[0].t < 3.5) continue;
@@ -80,26 +85,37 @@ export function renderChronogrid({ cfg, data, now }) {
     }
   });
 
-  // --- the clock, laid out in the middle of the graph ------------------------------
+  // --- the clock on the left, the cube's bay on the right ---------------------------
   const lay = layoutText(time, { colonGap: 2 });
-  const off = Math.floor((COLS - lay.width) / 2);
+  const plan = bayLayout({ cols: COLS, rows: ROWS, clockWidth: lay.width });
+  if (!plan) throw new Error('the graph is too narrow for the clock and the cube');
+  const off = plan.clockOff;
+  const court = plan.court;
+  const courtX = (x) => GX + (court.x + x) * P;
   const lit = new Set(lay.cells.map(([x, y]) => `${off + x},${y}`));
   const colonGlyph = lay.glyphs.find((g) => g.ch === ':');
   const isColon = (i) => colonGlyph && i === off + colonGlyph.x;
+  const inBay = (c) => c.i >= plan.bay.c0 && c.i < plan.bay.c1;
 
   const bgDark = '#070b14';
   const cellEls = [];
   const glowEls = [];
   const maskEls = [];
+  const bayCells = [];
   for (const c of cells) {
+    const delay = cellDelay(c.i, c.j, COLS);
+    if (inBay(c)) {
+      // these become the cube: stickers, or cells that are drawn into it
+      bayCells.push({ x: GX + c.i * P + P / 2, y: GY + c.j * P + P / 2, a: ACT[c.level], delay, count: c.count, date: c.date });
+      continue;
+    }
     const key = `${c.i},${c.j}`;
     const on = lit.has(key);
     const a = ACT[c.level];
     const b = on ? CLK[c.level] : c.level === 0 ? '#0b1220' : mix(a, bgDark, 0.74);
-    const delay = (c.i / (COLS - 1)) * WAVE + c.j * 0.018;
     const x = num(cellX(c.i), 1);
     const y = num(cellY(c.j), 1);
-    cellEls.push(`<rect class="c${on && isColon(c.i) ? ' k' : ''}" x="${x}" y="${y}" width="${C}" height="${C}" rx="2.6" style="--a:${a};--b:${b};--d:${num(delay, 2)}s"><title>${esc(c.date)}: ${c.count}</title></rect>`);
+    cellEls.push(`<rect class="c${on && isColon(c.i) ? ' k' : ''}" x="${x}" y="${y}" width="${C}" height="${C}" rx="2.6" style="--a:${a};--b:${b};--d:${num(delay, 2)}s"/>`);
     if (on) {
       const k = isColon(c.i) ? ' class="k"' : '';
       const hx = num(cellX(c.i) + C / 2, 1);
@@ -112,6 +128,23 @@ export function renderChronogrid({ cfg, data, now }) {
     }
   }
 
+  // --- the cube, built from the bay -----------------------------------------------------
+  const cubeCx = GX + plan.center.x * P;
+  const cubeCy = GY + plan.center.y * P;
+  const cube = buildCellCube({
+    L,
+    cx: cubeCx,
+    cy: cubeCy,
+    scale: CUBE_PX / (2 * cubeExtent(camera()).hy), // px per sticker edge so the silhouette is CUBE_PX tall
+    seed: hash32(`${parts.year}-${parts.month}-${parts.day}-${time}`),
+    moves: CUBE_MOVES,
+    cells: bayCells,
+    size: C,
+    inAt: MORPH_IN,
+    outAt: MORPH_OUT,
+    hudY: 190,
+  });
+
   // --- month ticks along the top ----------------------------------------------------
   const months = [];
   let prevMonth = -1;
@@ -119,14 +152,14 @@ export function renderChronogrid({ cfg, data, now }) {
   data.contrib.weeks.forEach((week, i) => {
     const m = +week[0].d.slice(5, 7);
     if (m !== prevMonth && i - lastCol >= 3) {
-      months.push(label(courtX(i) + 1, GY - 8, monthName(m), { size: 8.5, fill: PAL.faint, spacing: 0.1 }));
+      months.push(label(GX + i * P + 1, GY - 8, monthName(m), { size: 8.5, fill: PAL.faint, spacing: 0.1 }));
       lastCol = i;
     }
     prevMonth = m;
   });
 
   // --- pong, baked from the shared simulation ---------------------------------------
-  const rally = pickRally(day);
+  const rally = pickRally(day, court);
   const ballT = (f) => `translate(${num(courtX(f[1]), 1)}px,${num(courtY(f[2]), 1)}px)`;
   const padT = (ch) => (f) => `translateY(${num(courtY(f[ch] - 1.3), 1)}px)`;
   const padH = 2.6 * P;
@@ -141,7 +174,7 @@ export function renderChronogrid({ cfg, data, now }) {
     .filter((e) => e.type === 'hit' || e.type === 'wall')
     .map((e) => {
       const hit = e.type === 'hit';
-      const col = hit ? (e.side === 0 ? PAL.violet : PAL.pink) : PAL.gold;
+      const col = hit ? (e.side === 0 ? GAME.past : GAME.future) : GAME.hot;
       return `<circle class="ring" cx="${num(courtX(e.x), 1)}" cy="${num(courtY(e.y), 1)}" r="${hit ? 7 : 4.5}" fill="none" stroke="${col}" stroke-width="${hit ? 2 : 1.4}" style="animation-delay:${num(POP.t0 + e.t, 3)}s"/>`;
     })
     .join('');
@@ -160,8 +193,8 @@ export function renderChronogrid({ cfg, data, now }) {
     const t2 = k === states.length - 1 ? POP.t0 + POP.dur : POP.t0 + states[k + 1].t;
     scoreCss += `@keyframes sb${k}{0%{opacity:0}${pct(k === 0 ? POP.t0 - 0.2 : t1)}%{opacity:1}${pct(t2)}%{opacity:0}100%{opacity:0}}.sb${k}{animation:sb${k} ${L}s step-end infinite}`;
     scoreEls +=
-      label(courtX(0.9), GY + ROWS * P + 17, `PAST ${st.s[0]}`, { size: 9, fill: PAL.violet, cls: `sb sb${k}` }) +
-      label(courtX(COLS - 0.9), GY + ROWS * P + 17, `${st.s[1]} FUTURE`, { size: 9, fill: PAL.pink, anchor: 'end', cls: `sb sb${k}` });
+      label(courtX(0.9), GY + ROWS * P + 17, `PAST ${st.s[0]}`, { size: 9, fill: GAME.past, cls: `sb sb${k}` }) +
+      label(courtX(court.w - 0.9), GY + ROWS * P + 17, `${st.s[1]} FUTURE`, { size: 9, fill: GAME.future, anchor: 'end', cls: `sb sb${k}` });
   });
 
   const ball0 = rally.frames[0];
@@ -190,6 +223,7 @@ export function renderChronogrid({ cfg, data, now }) {
 .sb{opacity:0}.sb0{opacity:1}
 ${scoreCss}
 ${kf}
+${cube.css}
 @media (prefers-reduced-motion: reduce){
 *{animation:none!important}
 .c{fill:var(--b)}.glowg,.pong,.clk{opacity:1}.act,.scan,.ring{opacity:0}
@@ -198,10 +232,11 @@ ${kf}
   const defs =
     cardDefs('g') +
     [0, 1, 2, 3, 4].map((l) => `<radialGradient id="gh${l}"><stop offset="0" stop-color="${CLK[l]}" stop-opacity=".85"/><stop offset=".4" stop-color="${CLK[l]}" stop-opacity=".32"/><stop offset="1" stop-color="${CLK[l]}" stop-opacity="0"/></radialGradient>`).join('') +
-    `<radialGradient id="gblob"><stop offset="0" stop-color="#fff4cc" stop-opacity=".95"/><stop offset=".45" stop-color="${PAL.gold}" stop-opacity=".45"/><stop offset="1" stop-color="${PAL.gold}" stop-opacity="0"/></radialGradient>` +
-    `<radialGradient id="gball"><stop offset="0" stop-color="${PAL.gold}" stop-opacity=".7"/><stop offset="1" stop-color="${PAL.gold}" stop-opacity="0"/></radialGradient>` +
+    `<radialGradient id="gblob"><stop offset="0" stop-color="${GAME.ball}" stop-opacity=".95"/><stop offset=".45" stop-color="${GAME.future}" stop-opacity=".45"/><stop offset="1" stop-color="${GAME.future}" stop-opacity="0"/></radialGradient>` +
+    `<radialGradient id="gball"><stop offset="0" stop-color="${GAME.future}" stop-opacity=".7"/><stop offset="1" stop-color="${GAME.future}" stop-opacity="0"/></radialGradient>` +
     `<linearGradient id="gband" x1="0" x2="1"><stop offset="0" stop-color="${PAL.cyan}" stop-opacity="0"/><stop offset=".85" stop-color="${PAL.cyan}" stop-opacity=".22"/><stop offset="1" stop-color="#fff" stop-opacity=".55"/></linearGradient>` +
-    `<mask id="glit" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}">${maskEls.join('')}</mask>`;
+    `<mask id="glit" maskUnits="userSpaceOnUse" x="0" y="0" width="${W}" height="${H}">${maskEls.join('')}</mask>` +
+    cube.defs;
 
   const padCore = (color) =>
     `<rect x="${num(-padW * 0.9, 1)}" y="-4" width="${num(padW * 1.8, 1)}" height="${padH + 8}" rx="7" fill="${color}" opacity=".22"/>` +
@@ -209,7 +244,7 @@ ${kf}
     `<rect x="${num(-padW / 2 + 2, 1)}" y="3" width="2.2" height="${padH - 6}" rx="1.1" fill="#fff" opacity=".55"/>`;
 
   const trails = [5.0, 4.2, 3.4, 2.6, 1.9]
-    .map((r, k) => `<circle class="ballg t${k + 1}" r="${r}" fill="${PAL.gold}" opacity="${num(0.5 - k * 0.09, 2)}"/>`)
+    .map((r, k) => `<circle class="ballg t${k + 1}" r="${r}" fill="${GAME.future}" opacity="${num(0.5 - k * 0.09, 2)}"/>`)
     .join('');
 
   const body = [
@@ -222,18 +257,21 @@ ${kf}
     `<g class="act">${months.join('')}</g>`,
     // the graph / clock
     `<g>${cellEls.join('')}</g>`,
+    // the right-hand block of the graph, folding into the cube
+    `<g>${cube.under}</g>`,
+    `<g>${cube.body}</g>`,
     `<g class="glowg">${glowEls.join('')}</g>`,
     `<rect class="scan" x="0" y="${GY - 6}" width="40" height="${ROWS * P + 8}" fill="url(#gband)"/>`,
     // pong
     `<g class="pong">`,
     `<g mask="url(#glit)" style="mix-blend-mode:screen"><circle class="ballg" r="62" fill="url(#gblob)"/></g>`,
-    `<g transform="translate(${num(courtX(2.4), 1)} 0)"><g class="padl">${padCore(PAL.violet)}</g></g>`,
-    `<g transform="translate(${num(courtX(COLS - 2.4), 1)} 0)"><g class="padr">${padCore(PAL.pink)}</g></g>`,
+    `<g transform="translate(${num(courtX(court.paddleX[0]), 1)} 0)"><g class="padl">${padCore(GAME.past)}</g></g>`,
+    `<g transform="translate(${num(courtX(court.paddleX[1]), 1)} 0)"><g class="padr">${padCore(GAME.future)}</g></g>`,
     rings,
     trails,
     `<circle class="ballg" r="15" fill="url(#gball)"/>`,
-    `<circle class="ballg" r="6.4" fill="#fff8e1"/>`,
-    `<circle class="ballg" r="6.4" fill="none" stroke="${PAL.gold}" stroke-width="1.6"/>`,
+    `<circle class="ballg" r="6.4" fill="${GAME.ball}"/>`,
+    `<circle class="ballg" r="6.4" fill="none" stroke="${GAME.future}" stroke-width="1.6"/>`,
     scoreEls,
     `</g>`,
     // footer
@@ -245,11 +283,18 @@ ${kf}
   const svg = svgDoc({
     w: W,
     h: H,
-    title: 'Chrono-Grid: contribution graph that reforms into a clock',
-    desc: `TimeLordRaps' GitHub activity graph (${data.contrib.total} contributions in the last year) periodically reforms into the time ${time} ${parts.tzName}, with Pong played between PAST and FUTURE inside the digits, then melts back into the activity graph.`,
+    title: 'Chrono-Grid: contribution graph that reforms into a clock and a self-solving cube',
+    desc: `TimeLordRaps' GitHub activity graph (${data.contrib.total} contributions in the last year) periodically reforms into the time ${time} ${parts.tzName}, with Pong played between PAST and FUTURE inside the digits. The contributions on its right-hand side fold into a Rubik's cube that scrambles and solves itself, then everything melts back into the activity graph.`,
     defs,
     css,
     body,
   });
-  return { svg, meta: { time, rally: { seed: rally.seed, hits: rally.events.filter((e) => e.type === 'hit').length, score: rally.score } } };
+  return {
+    svg,
+    meta: {
+      time,
+      rally: { seed: rally.seed, hits: rally.events.filter((e) => e.type === 'hit').length, score: rally.score },
+      cube: cube.meta,
+    },
+  };
 }

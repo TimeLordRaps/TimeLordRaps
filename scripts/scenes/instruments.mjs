@@ -1,11 +1,11 @@
-// INSTRUMENT ROW: a self-solving cube, an orrery of the newest repos, and time dials.
+// INSTRUMENT ROW: a wall of world clocks, an orrery of the newest repos, and time dials.
 // Three cards in one 830px-wide image, the same width as GitHub's README column.
 
 import { sunPosition, sunTimes, moonPhase } from '../../site/lib/astro.mjs';
 import { zoneParts, hhmm, progress, pad2 } from '../../site/lib/timeutil.mjs';
 import { hash32 } from '../../site/lib/rng.mjs';
 import { PAL, FONT, num, esc, svgDoc, cardDefs, card, label } from './common.mjs';
-import { buildCube } from './cube.mjs';
+import { WORLD } from '../../site/js/config.js';
 
 const W = 830;
 const H = 252;
@@ -15,48 +15,55 @@ const PLANET_COLORS = [PAL.gold, PAL.cyan, PAL.mint, PAL.violet, PAL.pink, PAL.o
 
 const text = (x, y, s, o = {}) => label(x, y, s, o);
 
-// ---------------------------------------------------------------- cube card
-function cubeCard(x0, { cfg, now, parts }) {
-  const seed = hash32(`${parts.year}-${parts.month}-${parts.day}-${hhmm(parts)}`);
-  const cube = buildCube({ cx: x0 + 135, cy: 124, scale: 38, seed, moves: 14, prefix: 'k' });
-  const { loop, solvedAt, hold0, schedule } = cube.meta;
-  const pct = (t) => num((t / loop) * 100, 3);
+// ---------------------------------------------------------------- world-clock card
+const WALL = ['home', 'nyc', 'london', 'delhi', 'tokyo', 'sydney'];
 
-  let css = cube.css;
-  css += `.kglow{opacity:0;animation:kglow ${loop}s linear infinite}@keyframes kglow{0%,${pct(solvedAt)}%{opacity:0}${pct(solvedAt + 0.5)}%{opacity:.8}${pct(loop - 0.6)}%{opacity:.5}100%{opacity:0}}`;
-  css += `.kburst{opacity:0;transform-box:fill-box;transform-origin:center;animation:kburst ${loop}s linear infinite}@keyframes kburst{0%{opacity:.9;transform:scale(.2)}${pct(0.7)}%{opacity:0;transform:scale(1.5)}100%{opacity:0;transform:scale(1.5)}}`;
+/** One analog dial: face, ticks and three hands that keep turning from the sync time. */
+function dial(cx, cy, R, zone, now) {
+  const p = zoneParts(now, zone.tz);
+  const day = sunPosition(now, zone.lat, zone.lon).elevation > 0;
+  const tone = day ? PAL.gold : PAL.violet;
+  const aH = ((p.hour % 12) + p.minute / 60 + p.second / 3600) * 30;
+  const aM = (p.minute + p.second / 60) * 6;
+  const aS = p.second * 6;
+  const hand = (len, w, color, a, secs, tail = 0) =>
+    `<line x1="${cx}" y1="${num(cy + tail, 1)}" x2="${cx}" y2="${num(cy - len, 1)}" stroke="${color}" stroke-width="${w}" stroke-linecap="round" transform="rotate(${num(a, 1)} ${cx} ${cy})">` +
+    `<animateTransform attributeName="transform" type="rotate" from="${num(a, 1)} ${cx} ${cy}" to="${num(a + 360, 1)} ${cx} ${cy}" dur="${secs}s" repeatCount="indefinite"/></line>`;
+  let ticks = '';
+  for (let k = 0; k < 12; k++) {
+    const a = (k / 12) * Math.PI * 2;
+    const r1 = R - (k % 3 ? 3 : 5.5);
+    ticks += `M${num(cx + Math.sin(a) * r1, 1)} ${num(cy - Math.cos(a) * r1, 1)}L${num(cx + Math.sin(a) * (R - 1.6), 1)} ${num(cy - Math.cos(a) * (R - 1.6), 1)}`;
+  }
+  return (
+    `<circle cx="${cx}" cy="${cy}" r="${R + 3}" fill="${tone}" opacity=".1"/>` +
+    `<circle cx="${cx}" cy="${cy}" r="${R}" fill="#0b1222" stroke="${tone}" stroke-opacity=".7" stroke-width="1.4"/>` +
+    `<path d="${ticks}" stroke="${PAL.dim}" stroke-width="1" stroke-linecap="round" fill="none"/>` +
+    hand(R * 0.5, 2.4, PAL.ink, aH, 43200) +
+    hand(R * 0.78, 1.7, PAL.ink, aM, 3600) +
+    hand(R * 0.86, 1, PAL.cyan, aS, 60, R * 0.16) +
+    `<circle cx="${cx}" cy="${cy}" r="2" fill="${PAL.cyan}"/>` +
+    text(cx, cy + R + 14, zone.label, { size: 8, fill: PAL.dim, anchor: 'middle', spacing: 0.1 }) +
+    text(cx, cy + R + 25, hhmm(p), { size: 9, fill: PAL.ink, anchor: 'middle', weight: 700 })
+  );
+}
 
-  // HUD: scrambled -> move ticker -> solved, shown with hard steps
-  let hud = '';
-  const show = (id, t1, t2, svg) => {
-    css += `@keyframes ${id}{0%{opacity:0}${pct(t1)}%{opacity:1}${pct(t2)}%{opacity:0}100%{opacity:0}}.${id}{opacity:0;animation:${id} ${loop}s step-end infinite}`;
-    hud += svg.replace('<text ', `<text class="${id}" `);
-  };
-  const hy = H - 22;
-  show('hud0', 0, hold0 - 0.05, text(x0 + 18, hy, `SCRAMBLED · ${schedule.length} MOVES TO GO`, { size: 9.5, fill: PAL.dim }));
-  schedule.forEach((s, i) => {
-    const end = schedule[i + 1]?.t0 ?? s.t1 + 0.1;
-    show(`hud${i + 1}`, s.t0 - 0.02, end - 0.02, text(x0 + 18, hy, `MOVE ${pad2(i + 1)}/${pad2(schedule.length)}  ${s.move}`, { size: 9.5, fill: PAL.cyan }));
+function clocksCard(x0, { now, parts }) {
+  const zones = WALL.map((id) => WORLD.find((z) => z.id === id));
+  const R = 23;
+  let dials = '';
+  zones.forEach((z, i) => {
+    const cx = x0 + 49 + (i % 3) * 86;
+    const cy = 82 + Math.floor(i / 3) * 80;
+    dials += dial(cx, cy, R, z, now);
   });
-  show('hudz', solvedAt, loop - 0.4, text(x0 + 18, hy, `SOLVED · ${schedule.length} MOVES · REVERSED SCRAMBLE`, { size: 9.5, fill: PAL.mint }));
-
-  css += `@media (prefers-reduced-motion: reduce){.hudz{opacity:1;animation:none!important}.kglow{opacity:.5;animation:none!important}.kburst{display:none}}`;
-
-  const defs =
-    `<radialGradient id="kgl"><stop offset="0" stop-color="${PAL.mint}" stop-opacity=".55"/><stop offset="1" stop-color="${PAL.mint}" stop-opacity="0"/></radialGradient>` +
-    `<radialGradient id="kbu"><stop offset=".6" stop-color="#fff" stop-opacity="0"/><stop offset=".85" stop-color="${PAL.cyan}" stop-opacity=".8"/><stop offset="1" stop-color="${PAL.cyan}" stop-opacity="0"/></radialGradient>` +
-    `<filter id="ksh" x="-30%" y="-60%" width="160%" height="220%"><feGaussianBlur stdDeviation="7"/></filter>`;
-
   const body =
     card('i', x0, 0, CARD_W, H) +
-    text(x0 + 18, 29, 'SELF-SOLVING CUBE', { size: 10.5, fill: PAL.cyan, spacing: 0.2, weight: 700 }) +
-    text(x0 + CARD_W - 18, 29, `#${hhmm(parts).replace(':', '')}`, { size: 9.5, fill: PAL.faint, anchor: 'end' }) +
-    `<circle class="kglow" cx="${x0 + 135}" cy="126" r="118" fill="url(#kgl)"/>` +
-    `<ellipse cx="${x0 + 135}" cy="${H - 52}" rx="82" ry="13" fill="#000" opacity=".55" filter="url(#ksh)"/>` +
-    cube.body +
-    `<circle class="kburst" cx="${x0 + 135}" cy="124" r="96" fill="url(#kbu)"/>` +
-    hud;
-  return { css, defs, body, meta: cube.meta };
+    text(x0 + 18, 29, 'WORLD CLOCKS', { size: 10.5, fill: PAL.cyan, spacing: 0.2, weight: 700 }) +
+    text(x0 + CARD_W - 18, 29, `${zones.length} ZONES`, { size: 9.5, fill: PAL.faint, anchor: 'end' }) +
+    dials +
+    text(x0 + 18, H - 22, `SET ${hhmm(parts)} · TICKING · GOLD = DAY`, { size: 9.5, fill: PAL.dim });
+  return { css: '', defs: '', body, meta: { zones: zones.map((z) => z.id), at: hhmm(parts) } };
 }
 
 // ---------------------------------------------------------------- orrery card
@@ -256,15 +263,15 @@ function dialsCard(x0, { cfg, now, parts }) {
 export function renderInstruments({ cfg, data, now }) {
   const parts = zoneParts(now, cfg.home.tz);
   const ctx = { cfg, data, now, parts };
-  const cards = [cubeCard(XS[0], ctx), orreryCard(XS[1], ctx), dialsCard(XS[2], ctx)];
+  const cards = [clocksCard(XS[0], ctx), orreryCard(XS[1], ctx), dialsCard(XS[2], ctx)];
   const svg = svgDoc({
     w: W,
     h: H,
-    title: 'Instruments: self-solving cube, repo orrery, time dials',
-    desc: 'A Rubik’s cube that scrambles and solves itself, an orrery where the most recently pushed repositories orbit closest, and dials for moon phase, daylight and how far through the day, week, month and year it is.',
+    title: 'Instruments: world clocks, repo orrery, time dials',
+    desc: 'Six analog world clocks whose rims glow gold in daylight, an orrery where the most recently pushed repositories orbit closest, and dials for moon phase, daylight and how far through the day, week, month and year it is.',
     defs: cardDefs('i') + cards.map((c) => c.defs).join(''),
     css: cards.map((c) => c.css).join('\n'),
     body: cards.map((c) => c.body).join(''),
   });
-  return { svg, meta: { cube: cards[0].meta } };
+  return { svg, meta: { clocks: cards[0].meta } };
 }

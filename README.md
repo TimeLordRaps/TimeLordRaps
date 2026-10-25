@@ -10,11 +10,11 @@ I build auditable AI systems, formal tools, and interactive media—turning ambi
 
 [Featured work](#featured-work) · [All repositories](https://github.com/TimeLordRaps?tab=repositories) · [Sponsor open work](https://github.com/sponsors/TimeLordRaps) · [Music](https://soundcloud.com/timelordraps)
 
-<a href="https://timelordraps.github.io/TimeLordRaps/"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/chronogrid.svg" width="830" alt="Animated: my GitHub contribution graph reforms into the current time, Pong is played between PAST and FUTURE inside the glowing digits, then it melts back into the activity graph."></a>
+<a href="https://timelordraps.github.io/TimeLordRaps/"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/chronogrid.svg" width="830" alt="Animated: my GitHub contribution graph reforms into the current time, Pong is played between PAST and FUTURE inside the glowing digits while the contributions on the right fold into a Rubik's cube that scrambles and solves itself, then everything melts back into the activity graph."></a>
 
-<sub><b>That is my real contribution graph.</b> It melts into the time, plays Pong inside the digits, and melts back. On the <a href="https://timelordraps.github.io/TimeLordRaps/">live page</a>, click it and it becomes <i>your</i> time.</sub>
+<sub><b>That is my real contribution graph.</b> It melts into the time, plays Pong inside the digits, folds its right-hand side into a self-solving cube (all in contribution greens), and melts back. On the <a href="https://timelordraps.github.io/TimeLordRaps/">live page</a>, click it and it becomes <i>your</i> time.</sub>
 
-<a href="https://timelordraps.github.io/TimeLordRaps/#instruments"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/instruments.svg" width="830" alt="Animated instruments: a Rubik's cube that scrambles and solves itself, an orrery of my most recently pushed repositories, and dials for the moon, daylight, and how far through the day, week, month and year it is."></a>
+<a href="https://timelordraps.github.io/TimeLordRaps/#instruments"><img src="https://raw.githubusercontent.com/TimeLordRaps/TimeLordRaps/chronos/instruments.svg" width="830" alt="Animated instruments: world clocks, an orrery of my most recently pushed repositories, and dials for the moon, daylight, and how far through the day, week, month and year it is."></a>
 
 </div>
 

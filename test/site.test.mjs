@@ -33,7 +33,7 @@ function buildAll(data = sample, now = NOW) {
   return files;
 }
 
-const SIZE_CAP_KB = { 'banner.svg': 120, 'chronogrid.svg': 160, 'instruments.svg': 420 };
+const SIZE_CAP_KB = { 'banner.svg': 120, 'chronogrid.svg': 400, 'instruments.svg': 420 };
 const PILL_CAP_KB = 4;
 
 /** Returns a list of problems; empty means the SVG is safe to serve as a profile image. */
@@ -233,4 +233,24 @@ test('workflows pin every action to a commit and run with least privilege', () =
   const chronos = fs.readFileSync(path.join(dir, 'chronos.yml'), 'utf8');
   assert.match(chronos, /contents:\s*write/, 'chronos must be able to push its branch');
   assert.doesNotMatch(chronos, /pull_request_target/, 'never run this workflow on untrusted PR code');
+});
+
+test('the contribution graph folds into a self-solving cube, in contribution greens only', async () => {
+  const { FACE_COLORS, GAME } = await import('../site/lib/cellcube.mjs');
+  const { planSolve } = await import('../site/lib/cubeseq.mjs');
+  const { mulberry32 } = await import('../site/lib/rng.mjs');
+  const isGreen = (hex) => {
+    const n = parseInt(hex.slice(1), 16);
+    const [r, g, b] = [n >> 16, (n >> 8) & 255, n & 255];
+    return g >= r && g >= b;
+  };
+  for (const hex of [...Object.values(FACE_COLORS), ...Object.values(GAME)]) assert.ok(isGreen(hex), `${hex} is not a green`);
+
+  const plan = planSolve(mulberry32(7));
+  assert.ok(plan.solvedAt > plan.solveStart && plan.solveStart >= plan.scrambleEnd, 'the cube scrambles, holds, then solves');
+
+  const svg = buildAll()['chronogrid.svg'];
+  assert.match(svg, /@property --ma/, 'registered matrix properties drive the cube stickers');
+  assert.match(svg, /syntax:'&lt;number&gt;'/, '<number> must be escaped inside the XML style');
+  assert.match(svg, /class="kq"/, 'cube stickers are present');
 });

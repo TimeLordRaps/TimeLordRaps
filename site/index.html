@@ -37,7 +37,7 @@
     <h1 id="name" class="sr-only">TimeLordRaps</h1>
     <canvas id="wordmark" aria-hidden="true"></canvas>
     <p class="tagline" id="tagline" aria-live="off">Auditable AI · formal tools · interactive media</p>
-    <p class="lede">I build auditable AI systems, formal tools, and interactive media, turning ambitious ideas into inspectable, reproducible work. This page is the live instrument panel behind my GitHub profile: <strong>the contribution graph is the clock, the clock is a game, and the cube solves itself.</strong></p>
+    <p class="lede">I build auditable AI systems, formal tools, and interactive media, turning ambitious ideas into inspectable, reproducible work. This page is the live instrument panel behind my GitHub profile: <strong>the contribution graph is the clock, the clock is a game, and the graph folds into a cube that solves itself.</strong></p>
 
     <div class="stage">
       <figure class="panel grid-panel">
@@ -55,23 +55,7 @@
           <span id="gridScore" class="score" aria-live="off"></span>
           <span id="gridHint" class="hint">CLICK THE GRAPH FOR YOUR TIME</span>
         </div>
-        <p id="gridHelp" class="sr-only">Click or press Enter to turn the activity graph into the current time in your time zone. While the clock is showing, move the pointer over the court to steer a paddle in the game of Pong played between past and future, or use W and S and the arrow keys.</p>
-      </figure>
-
-      <figure class="panel cube-panel">
-        <figcaption class="panel-head">
-          <span class="tag gold"><i class="mark" aria-hidden="true"></i>SELF-SOLVING CUBE</span>
-          <span class="info" id="cubeInfo">…</span>
-        </figcaption>
-        <div class="cube-stage" id="cubeStage" tabindex="0" role="button" aria-label="Interactive Rubik's cube. Drag to orbit, press Enter to reshuffle and watch it solve itself." >
-          <canvas id="floor" aria-hidden="true"></canvas>
-          <canvas id="cube" aria-hidden="true"></canvas>
-          <canvas id="fx" aria-hidden="true"></canvas>
-        </div>
-        <div class="panel-foot">
-          <span id="cubeHud" class="mono-cyan">…</span>
-          <span class="hint">DRAG TO ORBIT · CLICK TO RESHUFFLE</span>
-        </div>
+        <p id="gridHelp" class="sr-only">Click or press Enter to turn the activity graph into the current time in your time zone. While the clock is showing, the contributions on the right fold into a Rubik's cube that scrambles and solves itself; drag it to orbit. Move the pointer over the court to steer a paddle in the game of Pong played between past and future, or use W and S and the arrow keys.</p>
       </figure>
     </div>
 
@@ -98,9 +82,25 @@
     <header class="sec-head">
       <p class="eyebrow">INSTRUMENT BAY</p>
       <h2 id="inst-h">Everything here runs on time</h2>
-      <p>Every instrument reads the same clock, so the time machine above moves all of them together. The cube is the exception: it keeps real time and re-scrambles on the twenty-second mark for everyone at once.</p>
+      <p>Every instrument reads the same clock, so the time machine above moves all of them together. The cube lab is the exception: it keeps real time and re-scrambles on the twenty-second mark for everyone at once.</p>
     </header>
     <div class="inst-grid" id="instGrid"></div>
+
+    <figure class="panel cube-panel lab" id="cubeLab">
+      <figcaption class="panel-head">
+        <span class="tag mint"><i class="mark" aria-hidden="true"></i>CUBE LAB</span>
+        <span class="info" id="cubeInfo">…</span>
+      </figcaption>
+      <div class="cube-stage" id="cubeStage" tabindex="0" role="button" aria-label="Interactive Rubik's cube, the same one the contribution graph folds into. Drag to orbit, press Enter to reshuffle and watch it solve itself." >
+        <canvas id="floor" aria-hidden="true"></canvas>
+        <canvas id="cube" aria-hidden="true"></canvas>
+        <canvas id="fx" aria-hidden="true"></canvas>
+      </div>
+      <div class="panel-foot">
+        <span id="cubeHud" class="mono-cyan">…</span>
+        <span class="hint">DRAG TO ORBIT · CLICK TO RESHUFFLE</span>
+      </div>
+    </figure>
   </section>
 
   <section class="band" id="work" aria-labelledby="work-h">

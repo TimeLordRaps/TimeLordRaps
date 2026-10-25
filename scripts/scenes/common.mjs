@@ -25,6 +25,13 @@ export const ACT = ['#15223b', '#0e4f3a', '#12805a', '#26c281', '#6dffb4'];
 export const CLK = ['#3596c0', '#45bde3', '#72dff0', '#bdfbf2', '#fff3c2'];
 export const GLOW = [0.34, 0.46, 0.62, 0.82, 1];
 
+/**
+ * The game and the cube are drawn in the graph's own greens and nothing else: PAST is the
+ * dimmer paddle, FUTURE the brighter one, and HOT is the near-white a ball or a solved flash gets.
+ * (Defined with the cube geometry so the live site draws with exactly the same colours.)
+ */
+export { GAME } from '../../site/lib/cellcube.mjs';
+
 export const num = (n, d = 1) => {
   const f = 10 ** d;
   return String(Math.round(n * f) / f);

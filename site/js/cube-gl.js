@@ -5,8 +5,10 @@
 // fake studio environment, enough to read as plastic without any textures.
 
 import { mulMV, mulMM, rotAxisAngle, stickerTangents, letterOf } from '../lib/cube.mjs';
+import { FACE_COLORS } from '../lib/cellcube.mjs';
 
-export const STICKER_HEX = { U: '#f4f8ff', D: '#ffd23f', F: '#2fe38a', B: '#3d8bff', R: '#ff4f64', L: '#ff9a3c' };
+// Six shades of the contribution graph's green, the same ones the graph folds into.
+export const STICKER_HEX = FACE_COLORS;
 const rgb01 = (h) => [1, 3, 5].map((i) => parseInt(h.slice(i, i + 2), 16) / 255);
 
 // ------------------------------------------------------------------ tiny matrix kit (column-major)

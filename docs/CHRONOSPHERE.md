@@ -5,7 +5,7 @@ The profile has two layers that share one set of source files.
 | Layer | What it is | Where it runs |
 |---|---|---|
 | **README art** | Script-free animated SVGs: banner, Chrono-Grid, instruments, link pills | Drawn by `scripts/build.mjs`, refreshed by a workflow, served from the `chronos` branch |
-| **Chronosphere site** | The real thing: click-to-your-time, live Pong, WebGL cube, instrument bay, time machine | Static files in `site/`, deployed to GitHub Pages |
+| **Chronosphere site** | The real thing: click-to-your-time, live Pong, the graph folding into a self-solving cube, a WebGL cube lab, instrument bay, time machine | Static files in `site/`, deployed to GitHub Pages |
 
 ```
 profile.config.json      who, where, taglines, featured repos (read by the build)
@@ -17,7 +17,7 @@ scripts/
 site/
   index.html css/ js/    the live page (plain ES modules, no dependencies, no build step)
   lib/                   pure modules shared by the build and the browser:
-                         font5x7, cube, pong, astro, timeutil, rng
+                         font5x7, cube, cubeseq, cellcube, pong, astro, timeutil, rng
   data/profile.sample.json   fallback data that ships with the page
 preview/                 local pages for eyeballing scenes (frame, sheet, readme)
 docs/                    this file
@@ -82,3 +82,7 @@ The page has no trackers and loads nothing from third parties. The visitor's tim
 ## Supply chain
 
 Every action in the workflows is pinned to a full commit SHA, with the release in a trailing comment, and `npm test` fails if one is not. To upgrade, resolve the new tag to a commit (`gh api repos/<owner>/<repo>/commits/<tag> --jq .sha`) and replace both the SHA and the comment.
+
+## The cube that the graph becomes
+
+While the clock shows, the ~120 contribution cells on the right are matched (Hungarian assignment) to the 27 camera-facing stickers of a cube and fly there; the rest are absorbed. `site/lib/cellcube.mjs` holds the geometry and morph, `site/lib/cubeseq.mjs` plans a scramble and its reversed solution. The orthographic camera makes every sticker a single affine matrix, so the README SVG animates registered `@property --ma..--mf` numbers instead of CSS `transform` interpolation (which collapses edge-on stickers). The cube, paddles and ball use only the contribution greens (`FACE_COLORS` and `GAME` in `cellcube.mjs`); the clock digits stay cyan.

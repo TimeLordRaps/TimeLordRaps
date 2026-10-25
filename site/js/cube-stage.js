@@ -5,7 +5,8 @@
 // and the scramble is a pure function of it. The solve is the reversed scramble.
 
 import { createCube, cloneCube, applyMove, invertMoves, scramble, moveAngle, FACE, formatMove } from '../lib/cube.mjs';
-import { mulberry32, hash32, easeInOutCubic } from '../lib/rng.mjs';
+import { mulberry32, hash32 } from '../lib/rng.mjs';
+import { planSolve, Track } from '../lib/cubeseq.mjs';
 import { CubeRenderer, STICKER_HEX } from './cube-gl.js';
 import { fitCanvas, clamp, TAU } from './util.js';
 
@@ -20,51 +21,8 @@ const GAP = 0.05;
 export function cycleFor(idx) {
   const rng = mulberry32(hash32(`chronosphere:${idx}`));
   const n = 14 + ((rng() * 5) | 0);
-  const scr = scramble(rng, n, 'RLUDFB');
-  const sol = invertMoves(scr);
-  const seq = [];
-  let t = LEAD;
-  for (const m of scr) {
-    seq.push({ m, t0: t, t1: t + T_SCRAMBLE, kind: 'scramble' });
-    t += T_SCRAMBLE;
-  }
-  t += HOLD;
-  const solveStart = t;
-  for (const m of sol) {
-    const d = m.n === 2 ? T_SOLVE * 1.25 : T_SOLVE;
-    seq.push({ m, t0: t, t1: t + d, kind: 'solve' });
-    t += d + GAP;
-  }
-  return { idx, n, seq, firstSolve: n, scrambleEnd: LEAD + n * T_SCRAMBLE, solveStart, solvedAt: seq.at(-1).t1 };
-}
-
-/** Plays a move list against the cube model, applying moves incrementally. */
-class Track {
-  constructor(seq, start = null) {
-    this.seq = seq;
-    this.start = start;
-    this.reset();
-  }
-  reset() {
-    this.model = this.start ? cloneCube(this.start) : createCube();
-    this.applied = 0;
-  }
-  at(tau) {
-    let done = this.applied;
-    if (done > 0 && this.seq[done - 1].t1 > tau) {
-      this.reset();
-      done = 0;
-    }
-    while (done < this.seq.length && this.seq[done].t1 <= tau) done++;
-    while (this.applied < done) applyMove(this.model, this.seq[this.applied++].m);
-    let anim = null;
-    const s = this.seq[done];
-    if (s && s.t0 <= tau) {
-      const { axis, sign } = FACE[s.m.f];
-      anim = { axis, sign, angle: moveAngle(s.m, easeInOutCubic(clamp((tau - s.t0) / (s.t1 - s.t0), 0, 1))), step: s, index: done };
-    }
-    return { model: this.model, anim, done };
-  }
+  const plan = planSolve(rng, { moves: n, faces: 'RLUDFB', t0: LEAD, scrambleMove: T_SCRAMBLE, hold: HOLD, solveMove: T_SOLVE, gap: GAP, halfTurnScale: 1.25 });
+  return { idx, ...plan };
 }
 
 export class CubeStage {
@@ -314,14 +272,14 @@ export class CubeStage {
       const r0 = 1 - (big ? 0.09 : 0.045);
       const lit = s <= sec;
       const age = sec - s;
-      g.strokeStyle = lit ? (age < 1.2 ? '#ffffff' : `rgba(70,224,255,${0.35 + 0.5 * Math.max(0, 1 - age / 20)})`) : big ? 'rgba(141,160,196,.5)' : 'rgba(81,100,140,.45)';
+      g.strokeStyle = lit ? (age < 1.2 ? '#ffffff' : `rgba(109,255,180,${0.35 + 0.5 * Math.max(0, 1 - age / 20)})`) : big ? 'rgba(141,160,196,.5)' : 'rgba(81,100,140,.45)';
       g.lineWidth = big ? 2.2 : 1.3;
       g.beginPath();
       g.moveTo(cx + Math.cos(a) * rx * r0, cy + Math.sin(a) * ry * r0);
       g.lineTo(cx + Math.cos(a) * rx, cy + Math.sin(a) * ry);
       g.stroke();
     }
-    g.strokeStyle = 'rgba(70,224,255,.22)';
+    g.strokeStyle = 'rgba(109,255,180,.22)';
     g.lineWidth = 1;
     g.beginPath();
     g.ellipse(cx, cy, rx * 0.9, ry * 0.9, 0, 0, TAU);
@@ -335,21 +293,21 @@ export class CubeStage {
     g.ellipse(cx, cy, rx * 0.9, ry * 0.9, 0, a - 0.9, a);
     g.closePath();
     const wake = g.createRadialGradient(cx, cy, 0, cx, cy, rx * 0.9);
-    wake.addColorStop(0, 'rgba(70,224,255,0)');
-    wake.addColorStop(1, 'rgba(70,224,255,.22)');
+    wake.addColorStop(0, 'rgba(109,255,180,0)');
+    wake.addColorStop(1, 'rgba(109,255,180,.22)');
     g.fillStyle = wake;
     g.fill();
     g.restore();
-    g.strokeStyle = '#ffc857';
+    g.strokeStyle = '#d2ffe8';
     g.lineWidth = 2;
-    g.shadowColor = '#ffc857';
+    g.shadowColor = '#d2ffe8';
     g.shadowBlur = 10;
     g.beginPath();
     g.moveTo(cx, cy);
     g.lineTo(cx + Math.cos(a) * rx * 0.97, cy + Math.sin(a) * ry * 0.97);
     g.stroke();
     g.shadowBlur = 0;
-    g.fillStyle = '#ffc857';
+    g.fillStyle = '#d2ffe8';
     g.beginPath();
     g.arc(cx, cy, 3.2, 0, TAU);
     g.fill();
