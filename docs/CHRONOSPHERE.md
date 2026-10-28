@@ -42,7 +42,7 @@ Open the site through `npm run serve` (or any static host). It loads ES modules,
 
 1. Merge to `main`.
 2. **Settings → Pages → Build and deployment → Source: GitHub Actions.** (`pages.yml` needs Pages enabled before its first run.)
-3. **Actions → chronos → Run workflow.** This creates the `chronos` branch that the README images load from. After that it refreshes itself about every ten minutes.
+3. **Actions → chronos → Run workflow.** This creates the `chronos` branch that the README images load from. After that it refreshes itself once daily at 15:17 UTC. You can still run it manually whenever you want an immediate refresh.
 4. Optional: add a repository secret `CHRONOS_TOKEN` (a token that can read your profile) if you want the graph to include exactly what you see when signed in. Without it the built-in `GITHUB_TOKEN` is used and the graph matches what visitors see.
 
 If GitHub ever pauses the schedule (public repositories with no activity for 60 days), re-enable the `chronos` workflow from the Actions tab.

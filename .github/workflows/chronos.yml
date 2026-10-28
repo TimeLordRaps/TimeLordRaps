@@ -10,7 +10,9 @@ name: chronos
 
 on:
   schedule:
-    - cron: '3-59/10 * * * *'
+    # Refresh once daily at 15:17 UTC. Manual runs and source-change rebuilds
+    # remain available below without spending minutes around the clock.
+    - cron: '17 15 * * *'
   workflow_dispatch:
   push:
     branches: [main]

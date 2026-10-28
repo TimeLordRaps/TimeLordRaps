@@ -60,7 +60,7 @@ For a project-specific question or collaboration idea, open an issue in the rele
 
 A profile README cannot run JavaScript, so this page is built in two layers that share one set of source files.
 
-**1. The animated images above** are script-free SVGs (CSS and SMIL animation only), drawn by [`scripts/build.mjs`](https://github.com/TimeLordRaps/TimeLordRaps/blob/main/scripts/build.mjs) from my real GitHub data. A [scheduled workflow](https://github.com/TimeLordRaps/TimeLordRaps/blob/main/.github/workflows/chronos.yml) rebuilds them about every ten minutes and publishes them to a throwaway `chronos` branch, so `main` never fills up with history. The clock inside the graph is a snapshot labelled with the time it was taken (`SYNC 17:50 PDT`). The Pong match and the cube are deterministic simulations that replay on a loop, and the glow of each digit pixel is the activity of the day it covers.
+**1. The animated images above** are script-free SVGs (CSS and SMIL animation only), drawn by [`scripts/build.mjs`](https://github.com/TimeLordRaps/TimeLordRaps/blob/main/scripts/build.mjs) from my real GitHub data. A [scheduled workflow](https://github.com/TimeLordRaps/TimeLordRaps/blob/main/.github/workflows/chronos.yml) rebuilds them once daily and publishes them to a throwaway `chronos` branch, so `main` never fills up with history. The clock inside the graph is a snapshot labelled with the time it was taken (`SYNC 17:50 PDT`). The Pong match and the cube are deterministic simulations that replay on a loop, and the glow of each digit pixel is the activity of the day it covers.
 
 **2. The [Chronosphere](https://timelordraps.github.io/TimeLordRaps/)** is the live version, served from GitHub Pages with no dependencies, no trackers and no build step:
 

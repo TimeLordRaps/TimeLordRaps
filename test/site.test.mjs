@@ -233,6 +233,9 @@ test('workflows pin every action to a commit and run with least privilege', () =
   const chronos = fs.readFileSync(path.join(dir, 'chronos.yml'), 'utf8');
   assert.match(chronos, /contents:\s*write/, 'chronos must be able to push its branch');
   assert.doesNotMatch(chronos, /pull_request_target/, 'never run this workflow on untrusted PR code');
+  const scheduledRuns = [...chronos.matchAll(/^\s*-\s+cron:\s*['"]([^'"]+)['"]/gm)].map((m) => m[1]);
+  assert.deepEqual(scheduledRuns, ['17 15 * * *'], 'chronos should spend scheduled runner time only once daily');
+  assert.match(chronos, /^\s*workflow_dispatch:/m, 'chronos should keep manual refreshes available');
 });
 
 test('the contribution graph folds into a self-solving cube, in contribution greens only', async () => {
