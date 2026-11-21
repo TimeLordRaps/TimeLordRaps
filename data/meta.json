@@ -1,0 +1,47 @@
+{
+  "generatedAt": "2026-11-21T15:18:21.514Z",
+  "source": "graphql",
+  "scenes": {
+    "chronogrid": {
+      "time": "07:18",
+      "rally": {
+        "seed": 5229,
+        "hits": 8,
+        "score": [
+          0,
+          1
+        ]
+      },
+      "cube": {
+        "stickers": 42,
+        "fromCells": 27,
+        "absorbed": 92,
+        "formedAt": 10.697692307692307,
+        "scrambleStart": 11.197692307692307,
+        "scrambleEnd": 13.177692307692313,
+        "solveStart": 14.377692307692312,
+        "solvedAt": 21.909692307692303,
+        "scramble": "R2 U2 F' U' F R F2 U' R2",
+        "solution": "R2 U F2 R' F' U F U2 R2",
+        "contributions": 420
+      }
+    },
+    "banner": {
+      "latestPush": "2026-11-20T15:18:24Z"
+    },
+    "instruments": {
+      "clocks": {
+        "zones": [
+          "home",
+          "nyc",
+          "london",
+          "delhi",
+          "tokyo",
+          "sydney"
+        ],
+        "at": "07:18"
+      }
+    },
+    "pills": null
+  }
+}
